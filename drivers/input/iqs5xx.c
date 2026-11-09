@@ -177,8 +177,7 @@ static void iqs5xx_work_handler(struct k_work *work) {
         // Schedule release after 100ms.
         k_work_schedule(&data->button_release_work, K_MSEC(100));
     } else if (scroll) {
-        // TODO: Expose this divisor.
-        int16_t scroll_div = 32;
+        int16_t scroll_div = config->scroll_div;
 
         // Only one scrolling direction is valid at a time.
         // End the communication right after reporting the movement.
@@ -254,6 +253,12 @@ static int iqs5xx_setup_device(const struct device *dev) {
     ret = iqs5xx_write_reg8(dev, IQS5XX_STATIONARY_THRESH, config->stationary_threshold);
     if (ret < 0) {
         LOG_ERR("Failed to set bottom stationary threshold: %d", ret);
+        return ret;
+    }
+
+    ret = iqs5xx_write_reg16(dev, IQS5XX_SCROLL_INITIAL_DISTANCE, config->scroll_initial_distance);
+    if (ret < 0) {
+        LOG_ERR("Failed to set scroll initial distance: %d", ret);
         return ret;
     }
 
@@ -419,6 +424,8 @@ static int iqs5xx_init(const struct device *dev) {
         .flip_y = DT_INST_PROP(n, flip_y),                                                         \
         .bottom_beta = DT_INST_PROP_OR(n, bottom_beta, 5),                                         \
         .stationary_threshold = DT_INST_PROP_OR(n, stationary_threshold, 5),                       \
+        .scroll_div = DT_INST_PROP_OR(n, scroll_div, 32),                                          \
+        .scroll_initial_distance = DT_INST_PROP_OR(n, scroll_initial_distance, 50),                \
     };                                                                                             \
     DEVICE_DT_INST_DEFINE(n, iqs5xx_init, NULL, &iqs5xx_data_##n, &iqs5xx_config_##n, POST_KERNEL, \
                           CONFIG_INPUT_INIT_PRIORITY, NULL);

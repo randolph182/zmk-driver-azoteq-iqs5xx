@@ -87,6 +87,10 @@
 #define IQS5XX_HOLD_TIME 0x06BD
 // TODO: Make hold time configurable with KConfig.
 
+// Scroll initial distance (2 bytes): minimum distance two fingers must move
+// before the chip reports the scroll gesture. 1 = almost no dead zone.
+#define IQS5XX_SCROLL_INITIAL_DISTANCE 0x06C8
+
 // Mouse button helpers.
 #define LEFT_BUTTON_BIT BIT(0)
 #define RIGHT_BUTTON_BIT BIT(1)
@@ -126,6 +130,8 @@ struct iqs5xx_config {
     bool scroll;
     bool natural_scroll_x;
     bool natural_scroll_y;
+    uint16_t scroll_div;
+    uint16_t scroll_initial_distance;
 
     // Axes configuration.
     bool switch_xy;
